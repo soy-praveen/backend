@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Victory Airdrop</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-size: cover;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background-color: rgba(0, 0, 0, 0.6);
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .profile img {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      margin-bottom: 15px;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .profile img:hover {
+      transform: scale(1.1);
+    }
+
+    .username {
+      font-size: 1.4em;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .task {
+      background: rgba(255, 255, 255, 0.2);
+      margin: 15px 0;
+      padding: 20px;
+      border-radius: 8px;
+      transition: background 0.3s ease;
+    }
+
+    .task:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .task p {
+      font-size: 1.1em;
+      margin-bottom: 15px;
+    }
+
+    .task button {
+      background: #1e90ff;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .task button:hover {
+      background: #0078d7;
+      transform: scale(1.05);
+    }
+
+    input {
+      width: calc(100% - 30px);
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      background-color: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-size: 1em;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #1e90ff;
+    }
+
+    #solana-address {
+      font-size: 1.2em;
+      margin-top: 20px;
+      font-weight: bold;
+      color: #1e90ff;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="profile">
+      <img id="profile-pic" src="" alt="Profile Picture">
+      <div class="username" id="username">Loading...</div>
+      <div id="solana-address" style="display: none;">Solana Address: <span></span></div>
+    </div>
+
+    <div id="tasks">
+      <div class="task" id="task-1">
+        <p>Join Victory's Telegram Channel</p>
+        <button onclick="checkTask(1)">Check Task</button>
+      </div>
+      <div class="task" id="task-2">
+        <p>Join Victory's Telegram Group</p>
+        <button onclick="checkTask(2)">Check Task</button>
+      </div>
+      <div class="task" id="task-3">
+        <p>Share your email</p>
+        <input type="email" id="email" placeholder="Enter your email">
+        <button onclick="submitEmail()">Send</button>
+      </div>
+      <div class="task" id="task-4">
+        <p>Share your Solana Address</p>
+        <input type="text" id="solana" placeholder="Enter your Solana Address">
+        <button onclick="lockAddress()">Lock Address</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize profile details
+    fetch('/api/profile')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('profile-pic').src = data.profilePic || 'default.png';
+        document.getElementById('username').innerText = data.username || 'Unknown User';
+        if (data.solanaAddress) {
+          document.getElementById('solana-address').style.display = 'block';
+          document.getElementById('solana-address span').innerText = data.solanaAddress;
+          document.getElementById('task-4').style.display = 'none';
+        }
+      });
+
+    // Check Task Completion
+    function checkTask(taskId) {
+      fetch(`/api/check-task/${taskId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById(`task-${taskId}`).innerHTML = 'Task completed!';
+          } else {
+            alert('Task not yet completed.');
+          }
+        });
+    }
+
+    // Submit Email
+    function submitEmail() {
+      const email = document.getElementById('email').value;
+      fetch('/api/share-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      }).then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById('task-3').innerHTML = 'Task completed!';
+          } else {
+            alert('Error sharing email.');
+          }
+        });
+    }
+
+    // Lock Solana Address
+    function lockAddress() {
+      const solana = document.getElementById('solana').value;
+      fetch('/api/share-solana', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ solana })
+      }).then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById('task-4').innerHTML = 'Task completed!';
+          } else {
+            alert('Error sharing Solana address.');
+          }
+        });
+    }
+  </script>
+
+</body>
+</html>
